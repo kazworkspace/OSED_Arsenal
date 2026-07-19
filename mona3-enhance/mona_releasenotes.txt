@@ -1,0 +1,215 @@
+[mona 3.0.3025]
+- Update revision (mona: 3025, windbglib: 3014)
+BailOutHere:
+  - <link cmd="https://github.com/corelan/mona3/commit/8750228">8750228</link> Minor fixes:     guess_bad_chars():     - "mapping" var uses strings, whereas the rest of the logic here expects integer representations of bytes.     - final logic for updating bytes omitted from input converts i to char, whereas set(cmp.x) already returns a set of integers
+  - <link cmd="https://github.com/corelan/mona3/commit/118c6b4">118c6b4</link>     Changes:         memcompare():         # Found the problem re: standard comparison table vs the corrupted, uncorrupted bytes!           - MemoryComparator() expects a bytes() object           - draw_byte_table() uses mapping, which should be derived from a list of single bytes         - ensured bytes object is passed to MemoryComparator and not list of bytes         - fixed issue with attempting to sort bytes objects rather than lists
+  - <link cmd="https://github.com/corelan/mona3/commit/83a7c45">83a7c45</link> Changes:         procCompare():         - made -f arg no longer mandatory         - added -cpb arg for gen. of badchars array         - create_char_array() used when there is no -f arg         - use memcompare() for comparison where no file is specified         - renamed vars to reduce ambiguity
+apl3b:
+  - <link cmd="https://github.com/corelan/mona3/commit/c281c9a">c281c9a</link> Heap work (#67)
+corelanc0d3r:
+  - <link cmd="https://github.com/corelan/mona3/commit/c6eabba">c6eabba</link> update -q 2
+  - <link cmd="https://github.com/corelan/mona3/commit/930dcb9">930dcb9</link> bugfix ensure_text
+  - <link cmd="https://github.com/corelan/mona3/commit/f870a25">f870a25</link> Merge pull request #66 from BailOutHere/compare-cmd-changes
+  - <link cmd="https://github.com/corelan/mona3/commit/9cab4c6">9cab4c6</link> provide help when response was truncated
+  - <link cmd="https://github.com/corelan/mona3/commit/95004fc">95004fc</link> add support for openrouter
+  - <link cmd="https://github.com/corelan/mona3/commit/56e6100">56e6100</link> allow pip updates via mona up. you can turn it off via mona config variable pip_update
+  - <link cmd="https://github.com/corelan/mona3/commit/cca5eb8">cca5eb8</link> update prompt
+github-actions[bot]:
+  - <link cmd="https://github.com/corelan/mona3/commit/0ef6c08">0ef6c08</link> Update revision (mona: 3024) update pip modules via mona up
+
+[windbglib 3.0.3014]
+- Update revision (mona: 3025, windbglib: 3014)
+- No file-specific commits found.
+
+[mona 3.0.3024]
+- Update revision (mona: 3024) update pip modules via mona up
+corelanc0d3r:
+  - <link cmd="https://github.com/corelan/mona3/commit/56e6100">56e6100</link> allow pip updates via mona up. you can turn it off via mona config variable pip_update
+  - <link cmd="https://github.com/corelan/mona3/commit/cca5eb8">cca5eb8</link> update prompt
+  - <link cmd="https://github.com/corelan/mona3/commit/cef22e6">cef22e6</link> fix count bug
+  - <link cmd="https://github.com/corelan/mona3/commit/d4efc18">d4efc18</link> validate files first
+  - <link cmd="https://github.com/corelan/mona3/commit/a2a73ae">a2a73ae</link> change filename extension when uploading to openai/anthropic
+  - <link cmd="https://github.com/corelan/mona3/commit/827b229">827b229</link> increase max tokens a bit for anthropic and report if response was truncated
+  - <link cmd="https://github.com/corelan/mona3/commit/b50faa7">b50faa7</link> improve prompt
+  - <link cmd="https://github.com/corelan/mona3/commit/7ed1ff0">7ed1ff0</link> verbose logging, stability improvements, better references to already uploaded files
+  - <link cmd="https://github.com/corelan/mona3/commit/c739928">c739928</link> reinstate the use of anthropic library, fallback to https. improve support for -upload and susequent use of file ids via -id in mona ai
+
+[mona 3.0.3023]
+- Update revision (mona: 3023, windbglib: 3013) identify windows 11, add logo to output markdown files
+corelanc0d3r:
+  - <link cmd="https://github.com/corelan/mona3/commit/d59839b">d59839b</link> identify windows 11
+  - <link cmd="https://github.com/corelan/mona3/commit/2434943">2434943</link> avoid leaking g_no_header
+  - <link cmd="https://github.com/corelan/mona3/commit/688a169">688a169</link> improve mona log files, add mona logo
+  - <link cmd="https://github.com/corelan/mona3/commit/b62e9d8">b62e9d8</link> add more info on heap chunk in q 3
+  - <link cmd="https://github.com/corelan/mona3/commit/c16d589">c16d589</link> improve collection of evidence and supporting wider range of variables in q 9
+  - <link cmd="https://github.com/corelan/mona3/commit/1ebf611">1ebf611</link> documentation update
+  - <link cmd="https://github.com/corelan/mona3/commit/ad45bc4">ad45bc4</link> ask for markdown output
+  - <link cmd="https://github.com/corelan/mona3/commit/fb31360">fb31360</link> prompt and caching update
+  - <link cmd="https://github.com/corelan/mona3/commit/4ea363f">4ea363f</link> make dict tables look pretty in output files
+github-actions[bot]:
+  - <link cmd="https://github.com/corelan/mona3/commit/43c9766">43c9766</link> Update revision (mona: 3022, windbglib: 3012) Refactor use of context variables in mona ai
+
+[windbglib 3.0.3013]
+- Update revision (mona: 3023, windbglib: 3013) identify windows 11, add logo to output markdown files
+corelanc0d3r:
+  - <link cmd="https://github.com/corelan/mona3/commit/d59839b">d59839b</link> identify windows 11
+github-actions[bot]:
+  - <link cmd="https://github.com/corelan/mona3/commit/43c9766">43c9766</link> Update revision (mona: 3022, windbglib: 3012) Refactor use of context variables in mona ai
+
+[mona 3.0.3022]
+- Update revision (mona: 3022, windbglib: 3012) Refactor use of context variables in mona ai
+corelanc0d3r:
+  - <link cmd="https://github.com/corelan/mona3/commit/b62e9d8">b62e9d8</link> add more info on heap chunk in q 3
+  - <link cmd="https://github.com/corelan/mona3/commit/c16d589">c16d589</link> improve collection of evidence and supporting wider range of variables in q 9
+  - <link cmd="https://github.com/corelan/mona3/commit/1ebf611">1ebf611</link> documentation update
+  - <link cmd="https://github.com/corelan/mona3/commit/ad45bc4">ad45bc4</link> ask for markdown output
+  - <link cmd="https://github.com/corelan/mona3/commit/fb31360">fb31360</link> prompt and caching update
+  - <link cmd="https://github.com/corelan/mona3/commit/4ea363f">4ea363f</link> make dict tables look pretty in output files
+  - <link cmd="https://github.com/corelan/mona3/commit/de93877">de93877</link> fix md formatting issues
+  - <link cmd="https://github.com/corelan/mona3/commit/21d5dd7">21d5dd7</link> fence issue
+  - <link cmd="https://github.com/corelan/mona3/commit/bae43a2">bae43a2</link> format ROP output to md
+  - <link cmd="https://github.com/corelan/mona3/commit/829e6d6">829e6d6</link> improve formatting
+
+[windbglib 3.0.3012]
+- Update revision (mona: 3022, windbglib: 3012) Refactor use of context variables in mona ai
+- No file-specific commits found.
+
+[mona 3.0.3021]
+- Update revision (mona: 3021, windbglib: 3011) ai q3 prompt and context collection improvements
+corelanc0d3r:
+  - <link cmd="https://github.com/corelan/mona3/commit/8f668b3">8f668b3</link> use a target map instead of duplicating disasm listings
+  - <link cmd="https://github.com/corelan/mona3/commit/a5f9e81">a5f9e81</link> cache uf in q 3
+  - <link cmd="https://github.com/corelan/mona3/commit/173eeb3">173eeb3</link> Prompt optimization
+  - <link cmd="https://github.com/corelan/mona3/commit/0d3d414">0d3d414</link> update q3 instructions
+  - <link cmd="https://github.com/corelan/mona3/commit/f182736">f182736</link> reduce noise
+  - <link cmd="https://github.com/corelan/mona3/commit/f44396f">f44396f</link> improve performance of q 3 context gathering, and improve prompt
+  - <link cmd="https://github.com/corelan/mona3/commit/904fab1">904fab1</link> update q3 context collection
+  - <link cmd="https://github.com/corelan/mona3/commit/2b05c51">2b05c51</link> update prompt and context gathering
+  - <link cmd="https://github.com/corelan/mona3/commit/0a75bb0">0a75bb0</link> update prompt for q 3
+  - <link cmd="https://github.com/corelan/mona3/commit/199d209">199d209</link> Merge branch 'main' of https://github.com/corelan/mona3
+github-actions[bot]:
+  - <link cmd="https://github.com/corelan/mona3/commit/e46b736">e46b736</link> Update revision (mona: 3020, windbglib: 3010) implement mona ai -q 3
+
+[windbglib 3.0.3011]
+- Update revision (mona: 3021, windbglib: 3011) ai q3 prompt and context collection improvements
+github-actions[bot]:
+  - <link cmd="https://github.com/corelan/mona3/commit/e46b736">e46b736</link> Update revision (mona: 3020, windbglib: 3010) implement mona ai -q 3
+
+[mona 3.0.3020]
+- Update revision (mona: 3020, windbglib: 3010) implement mona ai -q 3
+corelanc0d3r:
+  - <link cmd="https://github.com/corelan/mona3/commit/a5ec9f8">a5ec9f8</link> add question profile 3
+  - <link cmd="https://github.com/corelan/mona3/commit/339d58e">339d58e</link> remove duplicate logic
+  - <link cmd="https://github.com/corelan/mona3/commit/2a70dfe">2a70dfe</link> improve address to containing function logic
+  - <link cmd="https://github.com/corelan/mona3/commit/156c9b4">156c9b4</link> improve routine to see if an address is part of a function
+  - <link cmd="https://github.com/corelan/mona3/commit/c41a7ea">c41a7ea</link> remove :
+  - <link cmd="https://github.com/corelan/mona3/commit/ee4a432">ee4a432</link> bugfix
+  - <link cmd="https://github.com/corelan/mona3/commit/b93870d">b93870d</link> oops
+  - <link cmd="https://github.com/corelan/mona3/commit/61ca69f">61ca69f</link> print reminder about mona up
+  - <link cmd="https://github.com/corelan/mona3/commit/6cda492">6cda492</link> improve function analysis in q 2
+  - <link cmd="https://github.com/corelan/mona3/commit/1b5c7d6">1b5c7d6</link> update prompt and context collection for q 2
+
+[windbglib 3.0.3010]
+- Update revision (mona: 3020, windbglib: 3010) implement mona ai -q 3
+corelanc0d3r:
+  - <link cmd="https://github.com/corelan/mona3/commit/339d58e">339d58e</link> remove duplicate logic
+
+[mona 3.0.3019]
+- Update revision (mona: 3019, windbglib: 3009) implement openaiagents engine
+corelanc0d3r:
+  - <link cmd="https://github.com/corelan/mona3/commit/c7da3b8">c7da3b8</link> update use of PROMPT in request templates
+  - <link cmd="https://github.com/corelan/mona3/commit/0e79b3b">0e79b3b</link> implement openaiagents engine with bridge
+  - <link cmd="https://github.com/corelan/mona3/commit/17be2c5">17be2c5</link> output formatting
+  - <link cmd="https://github.com/corelan/mona3/commit/952205e">952205e</link> rewrite intent
+  - <link cmd="https://github.com/corelan/mona3/commit/42dbf9c">42dbf9c</link> improved error logging for ollama requests
+  - <link cmd="https://github.com/corelan/mona3/commit/fac8f50">fac8f50</link> remove openai-agents again and update routine to support ollama
+  - <link cmd="https://github.com/corelan/mona3/commit/a5d787a">a5d787a</link> better error handling
+  - <link cmd="https://github.com/corelan/mona3/commit/fc030b7">fc030b7</link> Update mona.py
+  - <link cmd="https://github.com/corelan/mona3/commit/4314e2e">4314e2e</link> start adding openai-agents support
+
+[windbglib 3.0.3009]
+- Update revision (mona: 3019, windbglib: 3009) implement openaiagents engine
+- No file-specific commits found.
+
+[mona 3.0.3018]
+- Update revision (mona: 3018, windbglib: 3008) bugfixes
+corelanc0d3r:
+  - <link cmd="https://github.com/corelan/mona3/commit/bf98b5a">bf98b5a</link> remove line from end
+  - <link cmd="https://github.com/corelan/mona3/commit/154cacc">154cacc</link> fix indentation issue
+  - <link cmd="https://github.com/corelan/mona3/commit/a5c7f5f">a5c7f5f</link> bugfix in windbglib, add extra cache for mona rop
+  - <link cmd="https://github.com/corelan/mona3/commit/eed0081">eed0081</link> add option to specify depth to ai profile q 2
+  - <link cmd="https://github.com/corelan/mona3/commit/488273a">488273a</link> update prompts for profile 2
+  - <link cmd="https://github.com/corelan/mona3/commit/b90b59f">b90b59f</link> add caching for performance, improve ai requests
+  - <link cmd="https://github.com/corelan/mona3/commit/1fda001">1fda001</link> add output of analyze to context
+  - <link cmd="https://github.com/corelan/mona3/commit/c762077">c762077</link> reduce request tokens, add submit flag, request confirmation before submitting
+github-actions[bot]:
+  - <link cmd="https://github.com/corelan/mona3/commit/5895209">5895209</link> Update revision (mona: 3017, windbglib: 3007)
+
+[windbglib 3.0.3008]
+- Update revision (mona: 3018, windbglib: 3008) bugfixes
+corelanc0d3r:
+  - <link cmd="https://github.com/corelan/mona3/commit/a5c7f5f">a5c7f5f</link> bugfix in windbglib, add extra cache for mona rop
+  - <link cmd="https://github.com/corelan/mona3/commit/b90b59f">b90b59f</link> add caching for performance, improve ai requests
+github-actions[bot]:
+  - <link cmd="https://github.com/corelan/mona3/commit/5895209">5895209</link> Update revision (mona: 3017, windbglib: 3007)
+
+[mona 3.0.3017]
+- Update revision (mona: 3017, windbglib: 3007)
+corelanc0d3r:
+  - <link cmd="https://github.com/corelan/mona3/commit/c762077">c762077</link> reduce request tokens, add submit flag, request confirmation before submitting
+  - <link cmd="https://github.com/corelan/mona3/commit/5e5b6c4">5e5b6c4</link> update tellmeUsage
+  - <link cmd="https://github.com/corelan/mona3/commit/e06e18a">e06e18a</link> refactor AI code
+  - <link cmd="https://github.com/corelan/mona3/commit/b558616">b558616</link> print filename at the end of dumplog
+  - <link cmd="https://github.com/corelan/mona3/commit/eaedd4b">eaedd4b</link> q3 improvements
+  - <link cmd="https://github.com/corelan/mona3/commit/7f85a9b">7f85a9b</link> updates to tellme
+  - <link cmd="https://github.com/corelan/mona3/commit/545a2fb">545a2fb</link> switch to offline instead of dryrun
+  - <link cmd="https://github.com/corelan/mona3/commit/ac40910">ac40910</link> Update mona.py
+github-actions[bot]:
+  - <link cmd="https://github.com/corelan/mona3/commit/db18bb3">db18bb3</link> Update revision (mona: 3016)
+
+[windbglib 3.0.3007]
+- Update revision (mona: 3017, windbglib: 3007)
+corelanc0d3r:
+  - <link cmd="https://github.com/corelan/mona3/commit/83a9d30">83a9d30</link> add caching and statistics
+  - <link cmd="https://github.com/corelan/mona3/commit/eaedd4b">eaedd4b</link> q3 improvements
+
+[mona 3.0.3016]
+- Update revision (mona: 3016)
+corelanc0d3r:
+  - <link cmd="https://github.com/corelan/mona3/commit/545a2fb">545a2fb</link> switch to offline instead of dryrun
+  - <link cmd="https://github.com/corelan/mona3/commit/ac40910">ac40910</link> Update mona.py
+  - <link cmd="https://github.com/corelan/mona3/commit/1c4d568">1c4d568</link> overwrite ai.q1 and ai.q2 on every run
+  - <link cmd="https://github.com/corelan/mona3/commit/6f7154b">6f7154b</link> add heap details variables to ai
+  - <link cmd="https://github.com/corelan/mona3/commit/cb8d70a">cb8d70a</link> remove python_version from variables
+  - <link cmd="https://github.com/corelan/mona3/commit/fe38512">fe38512</link> lazy load ai libraries
+  - <link cmd="https://github.com/corelan/mona3/commit/fa15289">fa15289</link> providing fallback mechanisms for mona up
+  - <link cmd="https://github.com/corelan/mona3/commit/c07c4a2">c07c4a2</link> improve ai request type 2 (analyse function)
+  - <link cmd="https://github.com/corelan/mona3/commit/f7b81e4">f7b81e4</link> default to dryrun. update documentation
+github-actions[bot]:
+  - <link cmd="https://github.com/corelan/mona3/commit/e1adeb0">e1adeb0</link> Update revision (mona: 3015, windbglib: 3006) AI refinements
+
+[mona 3.0.3015]
+- Update revision (mona: 3015, windbglib: 3006) AI refinements
+corelanc0d3r:
+  - <link cmd="https://github.com/corelan/mona3/commit/f7b81e4">f7b81e4</link> default to dryrun. update documentation
+  - <link cmd="https://github.com/corelan/mona3/commit/04c421d">04c421d</link> default to dryrun if no engine was specified
+  - <link cmd="https://github.com/corelan/mona3/commit/3545997">3545997</link> allow setting default ai engine through env var or mona config. streamline requests for anthropic
+  - <link cmd="https://github.com/corelan/mona3/commit/6bc4323">6bc4323</link> further refine context for AI
+  - <link cmd="https://github.com/corelan/mona3/commit/2c0072d">2c0072d</link> delay calling MnProc.ensure() until after arguments are validated
+  - <link cmd="https://github.com/corelan/mona3/commit/f699083">f699083</link> instruction on getting cyber approval for anthropic
+  - <link cmd="https://github.com/corelan/mona3/commit/cfad610">cfad610</link> add some extra checks for mona dumpobj
+  - <link cmd="https://github.com/corelan/mona3/commit/79b8af0">79b8af0</link> detect file differences within same version/revision and offer to run mona up -force
+  - <link cmd="https://github.com/corelan/mona3/commit/1dd7d84">1dd7d84</link> add diagnostics logging for mona up
+github-actions[bot]:
+  - <link cmd="https://github.com/corelan/mona3/commit/14adae5">14adae5</link> Update revision (mona: 3014) improvements and bugfixes, mostly in AI integration
+
+[windbglib 3.0.3006]
+- Update revision (mona: 3015, windbglib: 3006) AI refinements
+- No file-specific commits found.
+
+[windbglib 3.0.3005]
+github-actions[bot]:
+  - <link cmd="https://github.com/corelan/mona3/commit/3d1a50e">3d1a50e</link> compat. with Py3.14.4  (mona: 3006, windbglib: 3004)
+
+[windbglib 3.0.3004]
+- No file-specific commits found.

