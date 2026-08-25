@@ -13,6 +13,7 @@ from rich import print
 from rich.tree import Tree
 from rich.markup import escape
 from ropper import RopperService
+from ropper.common.utils import toHex
 
 
 class Gadgetizer:
@@ -24,8 +25,38 @@ class Gadgetizer:
         self.badbytes = "".join(
             badbytes
         )  # ropper's badbytes option has to be an instance of str
+        # file -> (default_imagebase, desired_imagebase). Populated in
+        # get_ropper_service() for any file given as file:base. We do the
+        # rebasing ourselves rather than trusting ropper's
+        # setImageBaseFor()/-I, which doubles the requested delta for PE
+        # files (see get_ropper_service() for details).
+        self.rebases = {}
         self.ropper_svc = self.get_ropper_service()
-        self.addresses = set()
+        # Addresses of every gadget ropper knows about for each file, at
+        # the correct (rebased) address. This backs the --rp dedup check
+        # in add_missing_gadgets(). It must be built from the SAME full
+        # per-file gadget list that save() writes out
+        # (ropperService.getFileFor(name).gadgets) - not just from the
+        # gadgets that happen to match one of the hand-picked category
+        # patterns in add_gadgets_to_tree()/_search_gadget(). Those
+        # patterns only cover a fraction of ropper's full gadget list, so
+        # building this set from them alone (the original approach) left
+        # the --rp dedup blind to most of ropper's own output, and rp++
+        # would re-append gadgets ropper had already found.
+        self.addresses = self._collect_all_addresses()
+
+    def _collect_all_addresses(self):
+        addresses = set()
+
+        for file in self.files:
+            if ":" in file:
+                file = file.split(":")[0]
+
+            for gadget in self.ropper_svc.getFileFor(name=file).gadgets:
+                address = self._rebase_address(file, gadget.address)
+                addresses.add(hex(address))
+
+        return addresses
 
     def get_ropper_service(self):
         options = {
@@ -41,14 +72,48 @@ class Gadgetizer:
                 file, base = file.split(":")
                 rs.addFile(file, arch=self.arch)
                 rs.clearCache()
-                rs.setImageBaseFor(name=file, imagebase=int(base, 16))
+                # NOTE: deliberately NOT calling rs.setImageBaseFor() here.
+                #
+                # ropper's PE loader (ropper/loaders/pe.py) bakes the
+                # (already-overridden) imageBase into each section's
+                # startAddress when computing executableSections/
+                # dataSections. Gadget.address then independently adds the
+                # same overridden imageBase again on top of that. Net
+                # result: for PE/EXE/DLL targets, every gadget address ends
+                # up shifted by 2x the requested rebase delta instead of
+                # 1x. (ropper's ELF loader does not bake the override into
+                # section addresses, so ELF targets are NOT affected by
+                # this particular bug - but we still do the rebase
+                # ourselves everywhere for consistency and so this script
+                # doesn't silently break again if ropper's internals change.)
+                #
+                # Instead: load gadgets at the file's own default image
+                # base, record the (default_base, desired_base) pair, and
+                # apply the correct offset ourselves wherever an address is
+                # displayed or stored (see _rebase_address(),
+                # _search_gadget(), and save()).
+                rs.loadGadgetsFor(file)
+                default_base = rs.getFileFor(name=file).loader.imageBase
+                desired_base = int(base, 16)
+                self.rebases[file] = (default_base, desired_base)
             else:
                 rs.addFile(file, arch=self.arch)
                 rs.clearCache()
-
-            rs.loadGadgetsFor(file)
+                rs.loadGadgetsFor(file)
 
         return rs
+
+    def _rebase_address(self, file, address):
+        """
+        Translate a gadget address ropper reports at a file's default
+        image base into the address it would have at the user-requested
+        base, without relying on ropper's (buggy, for PE) internal rebase.
+        """
+        if file in self.rebases:
+            default_base, desired_base = self.rebases[file]
+            return desired_base + (address - default_base)
+
+        return address
 
     def get_gadgets(self, search_str, quality=1, strict=False):
         gadgets = [
@@ -75,10 +140,11 @@ class Gadgetizer:
                 if gadget_filter.search(gadget.simpleString()):
                     continue
 
-                tree.add(
-                    f"{escape(str(gadget)).replace(':', '  #', 1)} :: {file}"
-                )
-                self.addresses.add(hex(gadget.address))
+                address = self._rebase_address(file, gadget.address)
+                addr_str = toHex(address, gadget.arch.addressLength)
+                line = f"{addr_str}  # {gadget.simpleInstructionString()}"
+
+                tree.add(f"{escape(line)} :: {file}")
 
         return tree
 
@@ -174,7 +240,11 @@ class Gadgetizer:
                     file = file.split(":")[0]
 
                 for gadget in self.ropper_svc.getFileFor(name=file).gadgets:
-                    f.write(f"{gadget}\n")
+                    address = self._rebase_address(file, gadget.address)
+                    addr_str = toHex(address, gadget.arch.addressLength)
+                    f.write(
+                        f"{addr_str}  # {gadget.simpleInstructionString()}\n"
+                    )
 def add_missing_gadgets(
     ropper_addresses: set,
     in_file,
