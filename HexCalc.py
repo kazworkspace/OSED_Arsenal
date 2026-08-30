@@ -66,7 +66,7 @@ def format_result_windbg(value: int, bits: int) -> str:
     unsigned_val = to_twos_complement(value, bits)
     signed_val = to_signed(unsigned_val, bits)
     hex_str = format(unsigned_val, f"0{digits}x")
-    return f"Evaluate expression: {signed_val} = {hex_str}"
+    return f"Evaluate expression: {signed_val} = 0x{hex_str}"
 
 
 def format_result_plain(value: int, width: int = 0) -> str:
