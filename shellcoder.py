@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+from __future__ import annotations  # allows X | Y type hints on Python 3.7+
 """
 Shellcode generator for OSED lab VMs (x86 only).
 
