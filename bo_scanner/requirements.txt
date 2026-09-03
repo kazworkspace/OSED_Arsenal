@@ -1,3 +1,0 @@
-lief>=0.14.0
-capstone>=5.0.0
-pytest>=7.0.0
