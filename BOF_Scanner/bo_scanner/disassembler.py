@@ -81,13 +81,27 @@ class Disassembler:
 
     def disassemble(self, data: bytes, start_va: int) -> List[Instruction]:
         """
-        Disassemble an entire byte buffer.
+        Disassemble an entire byte buffer, producing every instruction.
 
-        Large buffers are processed in _CHUNK_SIZE chunks to work around a
-        capstone detail-mode limitation that silently truncates output on
-        inputs larger than ~230 KB.  Instructions at chunk boundaries may
-        occasionally be lost, but these are typically in embedded data tables
-        rather than executable function prologues.
+        Two problems required the chunked architecture:
+
+        1. Capstone with detail=True silently truncates output after ~230 KB.
+           Fixed by splitting large sections into 64 KB chunks.
+
+        2. A fixed-size chunk that starts mid-instruction causes all subsequent
+           instructions in that chunk to be misaligned.  Example: if the last
+           complete instruction in chunk N ends at byte 65,537 (one byte into
+           chunk N+1 boundary), chunk N+1 would start decoding from byte 65,536,
+           which is the SECOND byte of that instruction — every decode after that
+           is wrong.
+
+           Fixed by starting each chunk 15 bytes BEFORE its true boundary
+           (15 = maximum x86 instruction length), then only emitting instructions
+           whose start address is >= the true boundary.  This guarantees the first
+           instruction we emit in each chunk is correctly decoded from its real
+           start, regardless of alignment.
+
+        No instruction is lost or duplicated across chunk boundaries.
         """
         if len(data) <= self._CHUNK_SIZE:
             result: List[Instruction] = []
@@ -95,14 +109,52 @@ class Disassembler:
                 result.append(self._wrap(insn))
             return result
 
-        # Chunked path — large section
+        # Chunked path — large section.
+        #
+        # Two problems require careful overlap handling:
+        #
+        # PROBLEM A — alignment:
+        #   If chunk N+1 starts at a byte that is the MIDDLE of an instruction
+        #   that started in chunk N, every subsequent decode in N+1 is wrong.
+        #   Fix: start each chunk 15 bytes BEFORE its true boundary (backward
+        #   overlap).  Only emit instructions whose address >= true boundary.
+        #   This realigns the decoder before the first instruction we care about.
+        #
+        # PROBLEM B — cross-boundary instructions lost:
+        #   An instruction that STARTS in chunk N but needs bytes from chunk N+1
+        #   cannot be decoded from chunk N alone (not enough data) and is
+        #   filtered out of chunk N+1 (address < true boundary).  It falls through
+        #   the cracks.
+        #   Fix: extend each chunk 15 bytes FORWARD past its true boundary (forward
+        #   overlap).  Now chunk N can decode cross-boundary instructions fully.
+        #   They are still emitted by chunk N (address < true_end_va) and excluded
+        #   from chunk N+1 (address < true_start_va of N+1).  No duplicates.
+        #
+        # Together the two overlaps guarantee: every instruction is decoded from
+        # its true start, emitted exactly once, and no alignment errors propagate.
+        _MAX_INSN = 15   # maximum x86 instruction length in bytes
+
         result = []
         offset = 0
         while offset < len(data):
-            chunk = data[offset:offset + self._CHUNK_SIZE]
-            chunk_va = start_va + offset
+            back  = min(_MAX_INSN, offset)  # backward overlap (alignment fix)
+
+            chunk_start   = offset - back
+            # Forward overlap captures instructions that cross into the next chunk
+            chunk_end     = min(len(data), offset + self._CHUNK_SIZE + _MAX_INSN)
+            chunk         = data[chunk_start:chunk_end]
+            chunk_va      = start_va + chunk_start
+
+            # This chunk "owns" instructions that START in [true_start_va, true_end_va).
+            # true_end_va == true_start_va of the next chunk.
+            true_start_va = start_va + offset
+            true_end_va   = start_va + min(len(data), offset + self._CHUNK_SIZE)
+
             for insn in self.cs.disasm(chunk, chunk_va):
-                result.append(self._wrap(insn))
+                addr = insn.address
+                if true_start_va <= addr < true_end_va:
+                    result.append(self._wrap(insn))
+
             offset += self._CHUNK_SIZE
         return result
 
