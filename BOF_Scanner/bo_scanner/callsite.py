@@ -17,6 +17,8 @@ from .imports import ImportResolver
 from .pe import PEContext
 from .rules import APIRule, CAT_INDIRECT_UNRESOLVED, UNRESOLVED_INDIRECT_RULE
 from .stack import EspTracker, classify_destination, get_stack_frame_size
+from .format_parser import parse_format_string, analyze_format_danger
+from .pe import read_cstring_at
 import capstone.x86 as _x86
 
 _CALLER_CONTROLLED = {ValType.FUNC_ARG, ValType.FUNC_ARG_REGISTER}
@@ -199,6 +201,22 @@ def analyze_call_sites(
                         "attacker_controlled": False,
                         "is_constant": False, "is_global": False,
                     }
+
+            # ── Format string content analysis ───────────────────────────────
+            # When the format arg is a compile-time constant address, read the
+            # actual string from the binary and parse its specifiers.
+            # This detects dangerous patterns like %s and %[^\n] without width.
+            if fmt_info and fv.type == ValType.IMMEDIATE and fv.imm_value:
+                fmt_literal = read_cstring_at(pe, fv.imm_value)
+                if fmt_literal:
+                    specs = parse_format_string(fmt_literal)
+                    analysis = analyze_format_danger(specs)
+                    fmt_info["format_literal"] = fmt_literal
+                    fmt_info["format_analysis"] = analysis
+                    # Upgrade is_constant semantics: a constant format with
+                    # dangerous specifiers is actually dangerous, not safe.
+                    if analysis["has_unbounded"] or analysis["has_write_primitive"]:
+                        fmt_info["is_constant"] = False   # don't apply the safe-constant discount
 
             bounds = detect_bounds_check(insns, idx)
 

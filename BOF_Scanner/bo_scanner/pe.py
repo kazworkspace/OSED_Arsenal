@@ -43,6 +43,28 @@ class PEContext:
     iat_map: Dict[int, ImportEntry] = field(default_factory=dict)
     # VA → exported function name (from the PE export table)
     export_names: Dict[int, str] = field(default_factory=dict)
+    # All sections (VA → raw bytes) — used to read constant strings from .rdata
+    _sections: List = field(default_factory=list)   # [(va, bytes)]
+
+
+def read_cstring_at(pe: "PEContext", va: int, max_len: int = 512) -> Optional[str]:
+    """
+    Read a null-terminated ASCII string from any section of the PE at virtual
+    address va.  Returns None if va is not in any known section or the bytes
+    cannot be decoded.
+    """
+    for sec_va, data in pe._sections:
+        if sec_va <= va < sec_va + len(data):
+            off = va - sec_va
+            end = off + max_len
+            chunk = data[off:min(end, len(data))]
+            null = chunk.find(b'\x00')
+            raw = chunk[:null] if null >= 0 else chunk
+            try:
+                return raw.decode('ascii', errors='replace')
+            except Exception:
+                return None
+    return None
 
 
 def parse_pe(path: str) -> PEContext:
@@ -100,6 +122,13 @@ def parse_pe(path: str) -> PEContext:
 
     if not ctx.code_sections:
         raise ValueError("No executable sections found — binary may be packed or corrupt.")
+
+    # ── All sections (for constant string reading) ──────────────────────────────
+    for sec in binary.sections:
+        sec_va = image_base + sec.virtual_address
+        sec_data = bytes(sec.content)
+        if sec_data:
+            ctx._sections.append((sec_va, sec_data))
 
     # ── Export table (for DLLs and EXEs with symbols) ─────────────────────────
     try:

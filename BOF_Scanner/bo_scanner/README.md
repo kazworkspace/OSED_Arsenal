@@ -139,6 +139,21 @@ python bo_scanner.py essfunc.dll
 | Formatted input | `scanf` `sscanf` `fscanf` |
 | Format string injection | `snprintf` `printf` `fprintf` `vprintf` `vsnprintf` |
 
+**Format string content analysis** — when the format argument is a compile-time constant
+address in the binary's `.rdata` section, the tool reads the actual format string and
+parses every specifier:
+
+| Pattern | Classification |
+|---------|---------------|
+| `%s` | **DANGEROUS** — unbounded string read/write |
+| `%[^
+]` | **DANGEROUS** — unbounded character class scan (signatus pattern) |
+| `%n` | **CRITICAL** — write primitive, enables arbitrary memory write |
+| `%255s` | safe — width-bounded |
+| `%2047[^
+]` | safe — width-bounded |
+| `%d`, `%x` | safe — numeric, no buffer overflow risk |
+
 CRT-decorated aliases (`_strcpy`, `_memcpy`, …) and Win32 ANSI wrappers (`lstrcpyA`, `lstrcatA`) resolve automatically.
 
 ---

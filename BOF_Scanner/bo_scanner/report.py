@@ -112,15 +112,45 @@ def format_text_report(
                 fmt = f.format_string
                 lines.append("  Format arg   :")
                 lines.append(f"    {fmt.get('description', 'not recovered')}")
-                if fmt.get("attacker_controlled"):
+
+                # Show literal format string when recovered from binary
+                if fmt.get("format_literal"):
+                    lines.append(f"    Literal: {fmt['format_literal']!r}")
+
+                fa = fmt.get("format_analysis", {})
+                if fa.get("has_write_primitive"):
+                    lines.append(
+                        "    *** %n WRITE PRIMITIVE DETECTED: enables arbitrary memory write ***"
+                    )
+                    for ds in fa.get("dangerous_specs", []):
+                        lines.append(f"      {ds['raw']!r} — {ds['reason']}")
+
+                elif fa.get("has_unbounded"):
+                    lines.append(
+                        "    *** DANGEROUS FORMAT SPECIFIER: unbounded read/write into destination ***"
+                    )
+                    for ds in fa.get("dangerous_specs", []):
+                        lines.append(f"      {ds['raw']!r} — {ds['reason']}")
+                    if fa.get("safe_specs"):
+                        lines.append("    (other specifiers are width-bounded)")
+
+                elif fa.get("all_bounded"):
+                    lines.append(
+                        "    All string specifiers have explicit width limits — low overflow risk"
+                    )
+                    for ss in fa.get("safe_specs", []):
+                        lines.append(f"      {ss['raw']!r} — {ss['reason']}")
+
+                elif fmt.get("attacker_controlled"):
                     lines.append(
                         "    *** FORMAT STRING IS POTENTIALLY ATTACKER-CONTROLLED ***"
                     )
                     lines.append(
-                        "    Risk: %n enables arbitrary write; %x/%s can leak stack/heap memory"
+                        "    Risk: %n enables arbitrary write; %s/%x can leak memory"
                     )
-                elif fmt.get("is_constant"):
-                    lines.append("    (constant format string — low format-string risk)")
+                elif fmt.get("is_constant") and not fa:
+                    lines.append("    (constant format — could not read from binary)")
+
                 lines.append("")
             elif not is_fmt:
                 # Source

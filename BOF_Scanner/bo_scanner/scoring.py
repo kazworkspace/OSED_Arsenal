@@ -15,6 +15,8 @@ from .rules import (
     CAT_UNBOUNDED_COPY, CAT_SIZE_DEPENDENT, CAT_FORMATTED_INPUT,
     CAT_FORMAT_STRING, CAT_INDIRECT_UNRESOLVED,
 )
+# CAT_FORMATTED_INPUT shares the format-string scoring path — both analyse
+# whether the format specifier is dangerous (e.g. %s vs %255s)
 
 _CALLER_CONTROLLED = {ValType.FUNC_ARG, ValType.FUNC_ARG_REGISTER}
 
@@ -42,22 +44,49 @@ def score_finding(analysis: CallSiteAnalysis) -> Tuple[str, float]:
     fmt  = analysis.format_string
 
     # ── Format string category: separate scoring path ─────────────────────────
-    if rule.category == CAT_FORMAT_STRING:
+    if rule.category in (CAT_FORMAT_STRING, CAT_FORMATTED_INPUT):
         score = rule.base_risk
+        fmt_analysis = (fmt or {}).get("format_analysis", {}) if fmt else {}
+
         if fmt is not None:
             if fmt.get("attacker_controlled"):
-                score += 20    # user-controlled format string → high risk
-            elif fmt.get("is_constant"):
-                score -= 30    # hardcoded format string → not a format-string vuln
-            elif fmt.get("is_global"):
-                score -= 10    # global (possibly writable) string
-            # else UNKNOWN: no adjustment
-        else:
-            score -= 15        # no format info recovered
+                # Runtime-controlled format string — classic format string vuln
+                score += 20
 
-        # Destination still matters for write primitives (snprintf %n)
+            elif fmt_analysis.get("has_write_primitive"):
+                # Constant format string contains %n — arbitrary write primitive
+                # Even a hardcoded %n is a serious bug (intentional backdoor or mistake)
+                score += 35
+
+            elif fmt_analysis.get("has_unbounded"):
+                # e.g.  scanf("%s", buf)  or  scanf("%[^\\n]", buf)
+
+
+
+
+                # Also penalise relative to destination buffer size if known
+                if dest.get("type") == "stack" and dest.get("estimated_size"):
+                    score += 10   # stack destination makes it more exploitable
+
+            elif fmt_analysis.get("all_bounded"):
+                # All string specifiers have explicit widths — provably safe
+                score -= 30
+
+            elif fmt.get("is_constant") and not fmt_analysis:
+                # Constant format but we couldn't read/parse it from the binary
+                score -= 15
+
+            elif fmt.get("is_global"):
+                # Global string — possibly writable but probably constant
+                score -= 10
+
+        else:
+            score -= 15   # no format info recovered
+
+        # Stack destination matters regardless of format source
         if dest.get("type") == "stack":
             score += 5
+
         score = max(0, min(100, score))
         return _map_severity(score), round(score / 100.0, 2)
 

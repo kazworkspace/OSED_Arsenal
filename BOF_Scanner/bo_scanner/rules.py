@@ -89,16 +89,16 @@ _RULES: list = [
 
     # --- Formatted input --------------------------------------------------------
     APIRule("scanf",    CAT_FORMATTED_INPUT, dest_arg=1, src_arg=0, size_arg=None,
-            base_risk=80, num_args=-1,
-            description="Formatted input without field-width length specifiers"),
+            base_risk=80, num_args=-1, format_arg=0,
+            description="Formatted input; %%s or %%[...] without width overflows destination"),
 
     APIRule("sscanf",   CAT_FORMATTED_INPUT, dest_arg=2, src_arg=1, size_arg=None,
-            base_risk=70, num_args=-1,
-            description="String-parsed input without field-width length specifiers"),
+            base_risk=70, num_args=-1, format_arg=1,
+            description="String-parsed input; %%s or %%[...] without width overflows destination"),
 
     APIRule("fscanf",   CAT_FORMATTED_INPUT, dest_arg=2, src_arg=1, size_arg=None,
-            base_risk=75, num_args=-1,
-            description="File-stream formatted input; %[...] and %s without width "
+            base_risk=75, num_args=-1, format_arg=1,
+            description="File-stream formatted input; %%[...] and %%s without width "
                         "specifier overflow the destination buffer"),
 
     # --- Format string injection ------------------------------------------------
